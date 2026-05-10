@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Buddy HK - Final MVP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #0f172a; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .gradient-bg { background: linear-gradient(135deg, #004e92 0%, #000428 100%); }
+        .tab-active { background: white; color: #004e92; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+        
+        .region-hk { background-color: #ef4444; }
+        .region-kowloon { background-color: #3b82f6; }
+        .region-nt { background-color: #22c55e; }
+
+        .slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="gradient-bg text-white py-8 px-6 shadow-2xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full blur-[100px] opacity-20 -mr-20 -mt-20"></div>
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10">
+            <div>
+                <h1 class="text-4xl font-black tracking-tight">TravelBuddy<span class="text-blue-400">HK</span></h1>
+                <p class="text-blue-200 text-xs font-bold uppercase tracking-[0.3em] mt-1">Intelligent Regional Mobility</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex gap-4">
+                <div class="flex items-center gap-3 bg-white/10 px-5 py-2.5 rounded-full border border-white/20 backdrop-blur-sm">
+                    <div class="h-2.5 w-2.5 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-xs font-bold">2024/25 Fare Sync Active</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto w-full p-4 md:p-8 flex-grow">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Navigation & Controls -->
+            <div class="lg:col-span-4 space-y-6">
+                <nav class="flex bg-slate-200 p-1.5 rounded-3xl shadow-inner">
+                    <button id="btn-local" onclick="switchMode('local')" class="flex-1 py-4 rounded-2xl font-bold transition-all duration-300 tab-active">Local</button>
+                    <button id="btn-intl" onclick="switchMode('international')" class="flex-1 py-4 rounded-2xl font-bold text-slate-500 hover:text-slate-700 transition-all duration-300">International</button>
+                </nav>
+
+                <!-- Local Controls -->
+                <div id="local-ui" class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 space-y-6 slide-up">
+                    <!-- Regional Labels -->
+                    <div class="flex justify-between items-center gap-2 pb-4">
+                        <div class="flex-1 text-center py-2 rounded-xl region-hk text-white text-[10px] font-black uppercase shadow-sm">HK Island</div>
+                        <div class="flex-1 text-center py-2 rounded-xl region-kowloon text-white text-[10px] font-black uppercase shadow-sm">Kowloon</div>
+                        <div class="flex-1 text-center py-2 rounded-xl region-nt text-white text-[10px] font-black uppercase shadow-sm">N.T.</div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-black text-slate-800">Route Planner</h2>
+                        <button onclick="detectLocation()" class="text-xs bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-bold hover:bg-blue-100 transition-colors">📍 Detect Me</button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-1 block">Start Point</label>
+                            <input list="hk-districts" id="start-node" placeholder="Type district name..." class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 outline-none transition-all">
+                            <span class="absolute left-4 top-10 text-xl">🏠</span>
+                        </div>
+                        <div class="relative">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-1 block">Destination</label>
+                            <input list="hk-districts" id="end-node" placeholder="Where to?" class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 outline-none transition-all">
+                            <span class="absolute left-4 top-10 text-xl">🎯</span>
+                        </div>
+                        <datalist id="hk-districts"></datalist>
+                    </div>
+
+                    <button onclick="calculateRoute()" class="w-full py-5 gradient-bg text-white font-black text-lg rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all">ESTIMATE JOURNEY</button>
+                </div>
+
+                <!-- Intl Controls (Hidden by default) -->
+                <div id="intl-ui" class="hidden bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 space-y-6 slide-up">
+                    <h2 class="text-xl font-black text-slate-800">Global Search</h2>
+                    <div class="relative">
+                        <input type="text" id="intl-search" onkeyup="searchIntl()" placeholder="Search city or country..." class="w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-200 rounded-2xl outline-none">
+                        <span class="absolute left-4 top-5 text-xl">✈️</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Results Area -->
+            <div class="lg:col-span-8">
+                <div id="placeholder-view" class="h-full min-h-[500px] glass rounded-[3rem] border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-12 text-center text-slate-400">
+                    <div class="text-7xl mb-6">🗺️</div>
+                    <h3 class="text-2xl font-black text-slate-500">Ready to Explore?</h3>
+                    <p class="max-w-md mt-2">Enter your departure and arrival points to see a detailed breakdown of costs and travel times in Hong Kong.</p>
+                </div>
+
+                <div id="local-results" class="hidden space-y-6">
+                    <!-- Cards will be injected here -->
+                </div>
+
+                <div id="intl-results" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Intl Cards injected here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const districts = {
+            // HK Island
+            'kennedy_town': { label: 'Kennedy Town', region: 'HK', lat: 22.28, lng: 114.12, emoji: '🚋' },
+            'sheung_wan': { label: 'Sheung Wan', region: 'HK', lat: 22.28, lng: 114.15, emoji: '☕' },
+            'central': { label: 'Central', region: 'HK', lat: 22.28, lng: 114.15, emoji: '🏙️' },
+            'wan_chai': { label: 'Wan Chai', region: 'HK', lat: 22.27, lng: 114.17, emoji: '🏮' },
+            'causeway_bay': { label: 'Causeway Bay', region: 'HK', lat: 22.28, lng: 114.18, emoji: '🛍️' },
+            'quarry_bay': { label: 'Quarry Bay', region: 'HK', lat: 22.28, lng: 114.21, emoji: '🏢' },
+            'chai_wan': { label: 'Chai Wan', region: 'HK', lat: 22.26, lng: 114.23, emoji: '🏭' },
+            'aberdeen': { label: 'Aberdeen', region: 'HK', lat: 22.24, lng: 114.15, emoji: '🛶' },
+            'stanley': { label: 'Stanley', region: 'HK', lat: 22.21, lng: 114.21, emoji: '🍦' },
+            'cyberport': { label: 'Cyberport', region: 'HK', lat: 22.26, lng: 114.13, emoji: '💻' },
+            'repulse_bay': { label: 'Repulse Bay', region: 'HK', lat: 22.23, lng: 114.19, emoji: '🏖️' },
+
+            // Kowloon
+            'tst': { label: 'Tsim Sha Tsui', region: 'Kowloon', lat: 22.29, lng: 114.17, emoji: '🎡' },
+            'mongkok': { label: 'Mong Kok', region: 'Kowloon', lat: 22.31, lng: 114.16, emoji: '🛍️' },
+            'jordan': { label: 'Jordan', region: 'Kowloon', lat: 22.30, lng: 114.17, emoji: '🍜' },
+            'sham_shui_po': { label: 'Sham Shui Po', region: 'Kowloon', lat: 22.33, lng: 114.16, emoji: '🔌' },
+            'kwun_tong': { label: 'Kwun Tong', region: 'Kowloon', lat: 22.31, lng: 114.22, emoji: '🏭' },
+            'choi_hung': { label: 'Choi Hung', region: 'Kowloon', lat: 22.33, lng: 114.20, emoji: '🌈' },
+            'mei_foo': { label: 'Mei Foo', region: 'Kowloon', lat: 22.33, lng: 114.13, emoji: '🌳' },
+            'hung_hom': { label: 'Hung Hom', region: 'Kowloon', lat: 22.30, lng: 114.18, emoji: '🎸' },
+
+            // New Territories
+            'shatin': { label: 'Sha Tin', region: 'NT', lat: 22.37, lng: 114.18, emoji: '🐎' },
+            'tseung_kwan_o': { label: 'Tseung Kwan O', region: 'NT', lat: 22.31, lng: 114.25, emoji: '🌊' },
+            'tsuen_wan': { label: 'Tsuen Wan', region: 'NT', lat: 22.36, lng: 114.11, emoji: '🧥' },
+            'tuen_mun': { label: 'Tuen Mun', region: 'NT', lat: 22.39, lng: 113.97, emoji: '⛴️' },
+            'yuen_long': { label: 'Yuen Long', region: 'NT', lat: 22.44, lng: 114.02, emoji: '🥧' },
+            'tin_shui_wai': { label: 'Tin Shui Wai', region: 'NT', lat: 22.45, lng: 114.00, emoji: '🌅' },
+            'sheung_shui': { label: 'Sheung Shui', region: 'NT', lat: 22.50, lng: 114.12, emoji: '📦' },
+            'tai_po': { label: 'Tai Po', region: 'NT', lat: 22.45, lng: 114.17, emoji: '🌳' },
+            'sai_kung': { label: 'Sai Kung', region: 'NT', lat: 22.38, lng: 114.27, emoji: '⛵' },
+            'tung_chung': { label: 'Tung Chung', region: 'NT', lat: 22.28, lng: 113.94, emoji: '✈️' }
+        };
+
+        const intlCities = [
+            { city: 'Tokyo', country: 'Japan', visa: 'Visa Free', cost: 'High', emoji: '🗼' },
+            { city: 'Osaka', country: 'Japan', visa: 'Visa Free', cost: 'Mid', emoji: '🏯' },
+            { city: 'Sapporo', country: 'Japan', visa: 'Visa Free', cost: 'Mid', emoji: '❄️' },
+            { city: 'Fukuoka', country: 'Japan', visa: 'Visa Free', cost: 'Low-Mid', emoji: '🍜' },
+            { city: 'Seoul', country: 'South Korea', visa: 'K-ETA Required', cost: 'Mid', emoji: '🏰' },
+            { city: 'Taipei', country: 'Taiwan', visa: 'Permit Required', cost: 'Low', emoji: '🏮' },
+            { city: 'London', country: 'UK', visa: 'Visa Free', cost: 'Very High', emoji: '💂' },
+            { city: 'Paris', country: 'France', visa: 'Visa Free', cost: 'Very High', emoji: '🥐' },
+            { city: 'Bangkok', country: 'Thailand', visa: 'Visa Free', cost: 'Low', emoji: '🐘' },
+            { city: 'Singapore', country: 'Singapore', visa: 'Visa Free', cost: 'Mid-High', emoji: '🦁' },
+            { city: 'Barcelona', country: 'Spain', visa: 'Visa Free', cost: 'High', emoji: '⚽' },
+            { city: 'Da Nang', country: 'Vietnam', visa: 'E-Visa', cost: 'Very Low', emoji: '🏖️' }
+        ];
+
+        window.onload = () => {
+            const list = document.getElementById('hk-districts');
+            Object.keys(districts).forEach(key => {
+                const d = districts[key];
+                list.innerHTML += `<option value="${d.label} (${d.region})">`;
+            });
+            searchIntl(); // Load defaults
+        };
+
+        function switchMode(mode) {
+            document.getElementById('local-ui').classList.toggle('hidden', mode !== 'local');
+            document.getElementById('intl-ui').classList.toggle('hidden', mode !== 'international');
+            document.getElementById('local-results').classList.toggle('hidden', true);
+            document.getElementById('intl-results').classList.toggle('hidden', mode !== 'international');
+            document.getElementById('placeholder-view').classList.toggle('hidden', true);
+            
+            if (mode === 'local') document.getElementById('placeholder-view').classList.remove('hidden');
+
+            document.getElementById('btn-local').className = mode === 'local' ? 'flex-1 py-4 rounded-2xl font-bold transition-all duration-300 tab-active' : 'flex-1 py-4 rounded-2xl font-bold text-slate-500 hover:text-slate-700 transition-all duration-300';
+            document.getElementById('btn-intl').className = mode === 'international' ? 'flex-1 py-4 rounded-2xl font-bold transition-all duration-300 tab-active' : 'flex-1 py-4 rounded-2xl font-bold text-slate-500 hover:text-slate-700 transition-all duration-300';
+        }
+
+        function findKey(input) {
+            const norm = input.toLowerCase();
+            for (let k in districts) {
+                if (norm.includes(districts[k].label.toLowerCase())) return k;
+            }
+            return null;
+        }
+
+        function calculateRoute() {
+            const startKey = findKey(document.getElementById('start-node').value);
+            const endKey = findKey(document.getElementById('end-node').value);
+            
+            if (!startKey || !endKey) {
+                showToast("Please select valid districts.");
+                return;
+            }
+
+            const s = districts[startKey];
+            const e = districts[endKey];
+            const dist = Math.sqrt(Math.pow(s.lat - e.lat, 2) + Math.pow(s.lng - e.lng, 2)) * 111; // KM
+            const isCrossHarbor = (s.region === 'HK' && e.region !== 'HK') || (s.region !== 'HK' && e.region === 'HK');
+
+            // MTR Logic (Octopus Rates)
+            let mtr = isCrossHarbor ? 10.5 + (dist * 0.7) : 4.8 + (dist * 0.6);
+            if (s.region === 'NT' && e.region === 'HK') mtr += 5; // Long haul jump
+            mtr = Math.min(Math.max(mtr, 4.8), 28.5);
+
+            // Bus Logic (Standard Fares)
+            let bus = 6.5;
+            if (isCrossHarbor) bus = 11.2;
+            if (dist > 15 && (s.region === 'NT' || e.region === 'NT')) bus = 22.4;
+
+            // Taxi Logic (2024 Flagfall)
+            let taxi = 27 + (dist * 9.5) + (isCrossHarbor ? 25 : 0);
+
+            renderResults(mtr, bus, taxi, dist, s, e);
+        }
+
+        function renderResults(mtr, bus, taxi, dist, s, e) {
+            document.getElementById('placeholder-view').classList.add('hidden');
+            const res = document.getElementById('local-results');
+            res.classList.remove('hidden');
+            
+            res.innerHTML = `
+                <div class="bg-white p-8 rounded-[3rem] shadow-xl slide-up border border-slate-50">
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Route Strategy: ${s.label} → ${e.label}</h3>
+                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold">~${dist.toFixed(1)} km</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- MTR Card -->
+                        <div class="p-6 rounded-3xl bg-red-50 border-l-8 border-red-500 transition-all hover:scale-[1.02] shadow-sm">
+                            <p class="text-[10px] font-black text-red-400 uppercase">MTR Octopus</p>
+                            <p class="text-4xl font-black text-red-600 mt-2">$${mtr.toFixed(1)}</p>
+                            <div class="flex items-center gap-2 mt-4">
+                                <span class="text-xs text-red-500 font-bold">⏱️ ${Math.round(dist * 2.8)} mins</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Bus Card -->
+                        <div class="p-6 rounded-3xl bg-green-50 border-l-8 border-green-500 transition-all hover:scale-[1.02] shadow-sm">
+                            <p class="text-[10px] font-black text-green-400 uppercase">Bus (Est.)</p>
+                            <p class="text-4xl font-black text-green-600 mt-2">$${bus.toFixed(1)}</p>
+                            <p class="text-xs text-green-500 font-bold mt-4">🚌 Fixed Route</p>
+                        </div>
+
+                        <!-- Taxi Card -->
+                        <div class="p-6 rounded-3xl bg-blue-50 border-l-8 border-blue-500 transition-all hover:scale-[1.02] shadow-sm">
+                            <p class="text-[10px] font-black text-blue-400 uppercase">Urban Taxi</p>
+                            <p class="text-4xl font-black text-blue-600 mt-2">$${Math.round(taxi)}</p>
+                            <p class="text-xs text-blue-500 font-bold mt-4">🚕 ${isCrossHarbor ? 'Inc. Tunnel Fee' : 'Direct'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function searchIntl() {
+            const query = document.getElementById('intl-search').value.toLowerCase();
+            const container = document.getElementById('intl-results');
+            container.innerHTML = '';
+            
+            const filtered = intlCities.filter(c => c.city.toLowerCase().includes(query) || c.country.toLowerCase().includes(query));
+            
+            filtered.forEach(c => {
+                container.innerHTML += `
+                    <div class="bg-white p-6 rounded-3xl shadow-lg slide-up hover:shadow-2xl transition-all border border-slate-50">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-3xl">${c.emoji}</span>
+                                <h4 class="text-xl font-black mt-2">${c.city}</h4>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">${c.country}</p>
+                            </div>
+                            <span class="bg-blue-50 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full uppercase">HKSAR Passport</span>
+                        </div>
+                        <div class="mt-6 pt-6 border-t border-slate-100 flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-300 uppercase">Visa Status</p>
+                                <p class="text-sm font-bold text-slate-700">${c.visa}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-bold text-slate-300 uppercase">Cost Level</p>
+                                <p class="text-sm font-bold text-blue-600">${c.cost}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function detectLocation() {
+            if (!navigator.geolocation) {
+                showToast("Geolocation not supported.");
+                return;
+            }
+            showToast("📍 Finding your district...");
+            navigator.geolocation.getCurrentPosition(pos => {
+                let min = Infinity;
+                let closest = null;
+                Object.keys(districts).forEach(k => {
+                    const d = Math.sqrt(Math.pow(pos.coords.latitude - districts[k].lat, 2) + Math.pow(pos.coords.longitude - districts[k].lng, 2));
+                    if (d < min) { min = d; closest = k; }
+                });
+                if (closest) {
+                    document.getElementById('start-node').value = districts[closest].label + " (" + districts[closest].region + ")";
+                    showToast("Located in " + districts[closest].label);
+                }
+            }, () => showToast("Location access denied."));
+        }
+
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl z-50 font-bold text-sm slide-up';
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => {
+                t.style.opacity = '0';
+                setTimeout(() => t.remove(), 500);
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
