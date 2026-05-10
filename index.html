@@ -12,7 +12,6 @@
         .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
         .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); }
         
-        /* The specific purple/blue glow from the user's screenshot */
         .glow-active {
             border: 2px solid transparent;
             background: #e5e7eb;
@@ -33,12 +32,9 @@
         .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
-        input::placeholder { color: #94a3b8; font-weight: 500; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -56,9 +52,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             
             <div class="lg:col-span-4 space-y-6">
+                <!-- Local Panel -->
                 <div id="local-panel" class="glow-active p-8 card-shadow slide-up">
                     <div class="space-y-8 relative z-10">
-                        <!-- Departure -->
                         <div class="relative">
                             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-3 block">Departure Point</label>
                             <div class="relative">
@@ -73,7 +69,6 @@
                             </div>
                         </div>
 
-                        <!-- Destination -->
                         <div class="relative">
                             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-3 block">Destination Point</label>
                             <input list="all-locations" id="end-node" 
@@ -86,21 +81,21 @@
 
                     <datalist id="all-locations"></datalist>
 
-                    <!-- Footer -->
                     <div class="pt-8 mt-8 flex justify-end items-center border-t border-slate-300 relative z-10">
                         <button onclick="clearInputs()" class="text-[11px] font-black text-blue-600 hover:text-blue-800 uppercase tracking-widest transition-colors">Clear Fields</button>
                     </div>
                 </div>
 
-                <!-- International Panel (Hidden) -->
-                <div id="intl-panel" class="hidden bg-white p-8 rounded-[2.5rem] card-shadow slide-up space-y-6">
+                <!-- International Panel (Filtered Continent Buttons) -->
+                <div id="intl-panel" class="hidden bg-white p-8 rounded-[2.5rem] card-shadow slide-up space-y-6 border border-slate-100">
                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block">Search Global Cities</label>
                     <input type="text" id="intl-search" oninput="searchIntl()" placeholder="Country or City..." 
                         class="w-full px-5 py-4 bg-slate-100 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-blue-500">
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="filterIntl('All')" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-900 text-white">All</button>
-                        <button onclick="filterIntl('Asia')" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500">Asia</button>
-                        <button onclick="filterIntl('Europe')" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500">Europe</button>
+                        <button onclick="filterIntl('All')" id="intl-btn-All" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-900 text-white transition-all">All</button>
+                        <button onclick="filterIntl('Asia')" id="intl-btn-Asia" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500 transition-all">Asia</button>
+                        <button onclick="filterIntl('Europe')" id="intl-btn-Europe" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500 transition-all">Europe</button>
+                        <button onclick="filterIntl('Americas')" id="intl-btn-Americas" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500 transition-all">Americas</button>
                     </div>
                 </div>
             </div>
@@ -141,30 +136,39 @@
         };
 
         const intlCities = [
-            { name: 'Tokyo', country: 'Japan', continent: 'Asia', visa: 'Visa Free', flight: '4.5h', cost: 'High' },
-            { name: 'Seoul', country: 'S. Korea', continent: 'Asia', visa: 'Visa Free', flight: '3.5h', cost: 'Mid' },
-            { name: 'London', country: 'UK', continent: 'Europe', visa: 'Visa Free', flight: '13h', cost: 'High' },
-            { name: 'Paris', country: 'France', continent: 'Europe', visa: 'Visa Free', flight: '13h', cost: 'High' }
+            // Asia
+            { name: 'Shenzhen', country: 'China', continent: 'Asia', visa: 'Return Permit', transport: 'HSR / Metro', cost: 'Low', desc: 'Tech hub & shopping destination.' },
+            { name: 'Shanghai', country: 'China', continent: 'Asia', visa: 'Return Permit', transport: 'Flight 2.5h', cost: 'Mid', desc: 'The Bund and modern skyscrapers.' },
+            { name: 'Beijing', country: 'China', continent: 'Asia', visa: 'Return Permit', transport: 'Flight 3h', cost: 'Mid', desc: 'Imperial history and the Great Wall.' },
+            { name: 'Tokyo', country: 'Japan', continent: 'Asia', visa: 'Visa Free', transport: 'Flight 4.5h', cost: 'High', desc: 'Electric city with world-class food.' },
+            { name: 'Bangkok', country: 'Thailand', continent: 'Asia', visa: 'Visa Free', transport: 'Flight 2.5h', cost: 'Low', desc: 'Temples, street food, and vibrant markets.' },
+            
+            // Europe
+            { name: 'London', country: 'UK', continent: 'Europe', visa: 'Visa Free', transport: 'Flight 13h', cost: 'High', desc: 'Historic landmarks and global theater.' },
+            { name: 'Paris', country: 'France', continent: 'Europe', visa: 'Visa Free', transport: 'Flight 13h', cost: 'High', desc: 'City of light, art, and romance.' },
+            
+            // Americas
+            { name: 'New York', country: 'USA', continent: 'Americas', visa: 'Visa Required', transport: 'Flight 16h', cost: 'High', desc: 'The Big Apple, Broadway, and Central Park.' },
+            { name: 'Los Angeles', country: 'USA', continent: 'Americas', visa: 'Visa Required', transport: 'Flight 13h', cost: 'High', desc: 'Hollywood, beaches, and Santa Monica Pier.' },
+            { name: 'Vancouver', country: 'Canada', continent: 'Americas', visa: 'eTA Required', transport: 'Flight 12h', cost: 'Mid', desc: 'Scenic mountain views and mild climate.' },
+            { name: 'Toronto', country: 'Canada', continent: 'Americas', visa: 'eTA Required', transport: 'Flight 15h', cost: 'High', desc: 'Canada\'s financial hub and CN Tower.' },
+            { name: 'San Francisco', country: 'USA', continent: 'Americas', visa: 'Visa Required', transport: 'Flight 12.5h', cost: 'High', desc: 'Golden Gate Bridge and tech culture.' }
         ];
+
+        let currentFilter = 'All';
 
         function initApp() {
             const list = document.getElementById('all-locations');
             list.innerHTML = '';
-
-            // Hierarchical pattern: Header -> Breakdown
             const regions = [
                 { id: 'HK', label: '--- HONG KONG ISLAND ---' },
                 { id: 'Kln', label: '--- KOWLOON ---' },
                 { id: 'NT', label: '--- NEW TERRITORIES ---' }
             ];
-
             regions.forEach(reg => {
-                // Add Regional Header
                 const header = document.createElement('option');
                 header.value = reg.label;
                 list.appendChild(header);
-
-                // Add Clean Districts
                 Object.keys(districts).filter(name => districts[name].region === reg.id).forEach(name => {
                     const option = document.createElement('option');
                     option.value = name;
@@ -187,44 +191,19 @@
             else searchIntl();
         }
 
-        function detectLocation() {
-            const icon = document.getElementById('geo-icon');
-            icon.className = 'fas fa-spinner fa-spin text-blue-500';
-
-            if (!navigator.geolocation) {
-                icon.className = 'fas fa-location-crosshairs text-lg';
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition((pos) => {
-                let nearest = null;
-                let minDist = Infinity;
-                Object.keys(districts).forEach(name => {
-                    const d = districts[name];
-                    const dist = Math.sqrt(Math.pow(pos.coords.latitude - d.lat, 2) + Math.pow(pos.coords.longitude - d.lon, 2));
-                    if (dist < minDist) { minDist = dist; nearest = name; }
-                });
-                if (nearest) {
-                    document.getElementById('start-node').value = nearest;
-                    checkDynamicRoute();
-                }
-                icon.className = 'fas fa-location-crosshairs text-lg';
-            }, () => icon.className = 'fas fa-location-crosshairs text-lg');
-        }
-
         function checkDynamicRoute() {
             const startName = document.getElementById('start-node').value.trim();
             const endName = document.getElementById('end-node').value.trim();
 
             if (districts[startName] && districts[endName] && startName !== endName) {
-                renderResults(districts[startName], districts[endName]);
+                renderLocalResults(districts[startName], districts[endName]);
             } else {
                 document.getElementById('placeholder-view').classList.remove('hidden');
                 document.getElementById('local-results').classList.add('hidden');
             }
         }
 
-        function renderResults(start, end) {
+        function renderLocalResults(start, end) {
             document.getElementById('placeholder-view').classList.add('hidden');
             const container = document.getElementById('local-results');
             container.classList.remove('hidden');
@@ -232,10 +211,9 @@
 
             const dist = Math.sqrt(Math.pow(start.lat - end.lat, 2) + Math.pow(start.lon - end.lon, 2)) * 111;
             const isCrossHarbor = (start.region === 'HK' && end.region !== 'HK') || (start.region !== 'HK' && end.region === 'HK');
-
-            // 2024/25 Adjusted logic
-            const mtr = isCrossHarbor ? 11.5 + dist * 0.4 : 5.2 + dist * 0.5;
-            const bus = isCrossHarbor ? 12.1 : 6.8;
+            
+            const mtr = isCrossHarbor ? 12.5 + dist * 0.45 : 4.8 + dist * 0.55;
+            let bus = isCrossHarbor ? ( (start.region === 'NT' || end.region === 'NT') ? 22.7 + (dist * 0.2) : 11.6 + (dist * 0.3) ) : 5.4 + (dist * 0.5);
             const taxi = 27 + (dist * 9.8) + (isCrossHarbor ? 25 : 0);
 
             const modes = [
@@ -264,6 +242,75 @@
                 `;
                 container.appendChild(div);
             });
+        }
+
+        function searchIntl() {
+            const query = document.getElementById('intl-search').value.toLowerCase();
+            const results = intlCities.filter(city => {
+                const matchesSearch = city.name.toLowerCase().includes(query) || city.country.toLowerCase().includes(query);
+                const matchesFilter = currentFilter === 'All' || city.continent === currentFilter;
+                return matchesSearch && matchesFilter;
+            });
+            renderIntlResults(results);
+        }
+
+        function filterIntl(continent) {
+            currentFilter = continent;
+            ['All', 'Asia', 'Europe', 'Americas'].forEach(c => {
+                const btn = document.getElementById(`intl-btn-${c}`);
+                if (btn) btn.className = c === continent ? 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-900 text-white transition-all' : 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500 transition-all';
+            });
+            searchIntl();
+        }
+
+        function renderIntlResults(cities) {
+            const container = document.getElementById('intl-results');
+            container.classList.remove('hidden');
+            document.getElementById('placeholder-view').classList.add('hidden');
+            container.innerHTML = '';
+            
+            cities.forEach(city => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-6 rounded-[2rem] card-shadow slide-up flex flex-col justify-between hover:scale-[1.02] transition-transform duration-300';
+                div.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="text-2xl font-black text-slate-900 leading-tight">${city.name}</h4>
+                                <p class="text-xs font-bold text-blue-600 uppercase tracking-widest">${city.country}</p>
+                            </div>
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[9px] font-black uppercase">${city.visa}</span>
+                        </div>
+                        <p class="text-slate-500 text-sm mb-6">${city.desc}</p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-[9px] font-black text-slate-300 uppercase">Transport</p>
+                            <p class="text-sm font-bold text-slate-700">${city.transport}</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] font-black text-slate-300 uppercase">Cost Level</p>
+                            <p class="text-sm font-bold text-slate-700">${city.cost}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function detectLocation() {
+            const icon = document.getElementById('geo-icon');
+            icon.className = 'fas fa-spinner fa-spin text-blue-500';
+            navigator.geolocation.getCurrentPosition((pos) => {
+                let nearest = null; let minDist = Infinity;
+                Object.keys(districts).forEach(name => {
+                    const d = districts[name];
+                    const dist = Math.sqrt(Math.pow(pos.coords.latitude - d.lat, 2) + Math.pow(pos.coords.longitude - d.lon, 2));
+                    if (dist < minDist) { minDist = dist; nearest = name; }
+                });
+                if (nearest) { document.getElementById('start-node').value = nearest; checkDynamicRoute(); }
+                icon.className = 'fas fa-location-crosshairs text-lg';
+            }, () => icon.className = 'fas fa-location-crosshairs text-lg');
         }
 
         function clearInputs() {
