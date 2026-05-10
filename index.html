@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; }
+        
         .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
         .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); }
         
@@ -29,11 +30,49 @@
             z-index: 1;
         }
 
+        .suggestions-container {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: white;
+            border-radius: 1.5rem;
+            margin-top: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            display: none;
+            scrollbar-width: thin;
+        }
+        .suggestion-header {
+            padding: 12px 20px 4px 20px;
+            background: #f8fafc;
+            font-size: 10px;
+            font-weight: 900;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .suggestion-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            color: #475569;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .suggestion-item:hover { background-color: #f1f5f9; color: #7c3aed; }
+        .suggestion-item:last-child { border-bottom: none; }
+
         .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
@@ -55,38 +94,43 @@
                 <!-- Local Panel -->
                 <div id="local-panel" class="glow-active p-8 card-shadow slide-up">
                     <div class="space-y-8 relative z-10">
-                        <div class="relative">
+                        <!-- Departure -->
+                        <div class="relative group">
                             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-3 block">Departure Point</label>
                             <div class="relative">
-                                <input list="all-locations" id="start-node" 
-                                    oninput="checkDynamicRoute()" 
-                                    onfocus="this.value=''; checkDynamicRoute()" 
+                                <input id="start-node" 
+                                    onfocus="showSuggestions('start-node')"
+                                    oninput="filterSuggestions('start-node')"
                                     placeholder="Enter Location" 
-                                    class="w-full pl-5 pr-12 py-5 bg-slate-200 border-2 border-transparent rounded-2xl outline-none transition-all focus:bg-white focus:border-purple-400 text-slate-700 font-medium">
-                                <button onclick="detectLocation()" title="Detect My Location" class="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 text-blue-500 hover:bg-white rounded-xl transition-all">
+                                    autocomplete="off"
+                                    class="w-full pl-5 pr-12 py-5 bg-slate-200 border-2 border-transparent rounded-2xl outline-none transition-all focus:bg-white focus:border-purple-400 text-slate-700 font-medium placeholder:text-slate-400">
+                                <button onclick="detectLocation()" title="Detect My Location" class="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 text-blue-500 hover:bg-slate-100 rounded-xl transition-all">
                                     <i class="fas fa-location-crosshairs text-lg" id="geo-icon"></i>
                                 </button>
+                                <div id="start-node-suggestions" class="suggestions-container"></div>
                             </div>
                         </div>
 
+                        <!-- Destination -->
                         <div class="relative">
                             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-3 block">Destination Point</label>
-                            <input list="all-locations" id="end-node" 
-                                oninput="checkDynamicRoute()" 
-                                onfocus="this.value=''; checkDynamicRoute()" 
-                                placeholder="Where to?" 
-                                class="w-full px-5 py-5 bg-slate-200 border-2 border-transparent rounded-2xl outline-none transition-all focus:bg-white focus:border-purple-400 text-slate-700 font-medium">
+                            <div class="relative">
+                                <input id="end-node" 
+                                    onfocus="showSuggestions('end-node')"
+                                    oninput="filterSuggestions('end-node')"
+                                    placeholder="Where to?" 
+                                    autocomplete="off"
+                                    class="w-full px-5 py-5 bg-slate-200 border-2 border-transparent rounded-2xl outline-none transition-all focus:bg-white focus:border-purple-400 text-slate-700 font-medium placeholder:text-slate-400">
+                                <div id="end-node-suggestions" class="suggestions-container"></div>
+                            </div>
                         </div>
                     </div>
-
-                    <datalist id="all-locations"></datalist>
 
                     <div class="pt-8 mt-8 flex justify-end items-center border-t border-slate-300 relative z-10">
                         <button onclick="clearInputs()" class="text-[11px] font-black text-blue-600 hover:text-blue-800 uppercase tracking-widest transition-colors">Clear Fields</button>
                     </div>
                 </div>
 
-                <!-- International Panel (Filtered Continent Buttons) -->
                 <div id="intl-panel" class="hidden bg-white p-8 rounded-[2.5rem] card-shadow slide-up space-y-6 border border-slate-100">
                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block">Search Global Cities</label>
                     <input type="text" id="intl-search" oninput="searchIntl()" placeholder="Country or City..." 
@@ -101,6 +145,7 @@
             </div>
 
             <div class="lg:col-span-8 h-full">
+                <!-- Placeholder -->
                 <div id="placeholder-view" class="h-full min-h-[450px] bg-slate-200/50 rounded-[3rem] border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-12 text-center">
                     <div class="w-24 h-24 bg-slate-300/50 rounded-full flex items-center justify-center mb-8">
                         <i class="fas fa-map-marked-alt text-4xl text-slate-400"></i>
@@ -122,6 +167,7 @@
             'Causeway Bay': { region: 'HK', lat: 22.2800, lon: 114.1850 },
             'Quarry Bay': { region: 'HK', lat: 22.2850, lon: 114.2130 },
             'Kennedy Town': { region: 'HK', lat: 22.2830, lon: 114.1270 },
+            'Aberdeen': { region: 'HK', lat: 22.2470, lon: 114.1510 },
             'Stanley': { region: 'HK', lat: 22.2180, lon: 114.2130 },
             'Tsim Sha Tsui': { region: 'Kln', lat: 22.2988, lon: 114.1722 },
             'Mong Kok': { region: 'Kln', lat: 22.3193, lon: 114.1694 },
@@ -136,46 +182,80 @@
         };
 
         const intlCities = [
-            // Asia
-            { name: 'Shenzhen', country: 'China', continent: 'Asia', visa: 'Return Permit', transport: 'HSR / Metro', cost: 'Low', desc: 'Tech hub & shopping destination.' },
-            { name: 'Shanghai', country: 'China', continent: 'Asia', visa: 'Return Permit', transport: 'Flight 2.5h', cost: 'Mid', desc: 'The Bund and modern skyscrapers.' },
-            { name: 'Beijing', country: 'China', continent: 'Asia', visa: 'Return Permit', transport: 'Flight 3h', cost: 'Mid', desc: 'Imperial history and the Great Wall.' },
+            { name: 'Shenzhen', country: 'China', continent: 'Asia', visa: 'Home Return Permit', transport: 'HSR / Metro', cost: 'Low', desc: 'Tech hub & shopping destination.' },
+            { name: 'Shanghai', country: 'China', continent: 'Asia', visa: 'Home Return Permit', transport: 'Flight 2.5h', cost: 'Mid', desc: 'The Bund and modern skyscrapers.' },
+            { name: 'Beijing', country: 'China', continent: 'Asia', visa: 'Home Return Permit', transport: 'Flight 3h', cost: 'Mid', desc: 'Imperial history and the Great Wall.' },
             { name: 'Tokyo', country: 'Japan', continent: 'Asia', visa: 'Visa Free', transport: 'Flight 4.5h', cost: 'High', desc: 'Electric city with world-class food.' },
-            { name: 'Bangkok', country: 'Thailand', continent: 'Asia', visa: 'Visa Free', transport: 'Flight 2.5h', cost: 'Low', desc: 'Temples, street food, and vibrant markets.' },
-            
-            // Europe
+            { name: 'Seoul', country: 'S.Korea', continent: 'Asia', visa: 'Visa Free', transport: 'Flight 3.5h', cost: 'Mid', desc: 'K-pop culture and traditional palaces.' },
             { name: 'London', country: 'UK', continent: 'Europe', visa: 'Visa Free', transport: 'Flight 13h', cost: 'High', desc: 'Historic landmarks and global theater.' },
             { name: 'Paris', country: 'France', continent: 'Europe', visa: 'Visa Free', transport: 'Flight 13h', cost: 'High', desc: 'City of light, art, and romance.' },
-            
-            // Americas
             { name: 'New York', country: 'USA', continent: 'Americas', visa: 'Visa Required', transport: 'Flight 16h', cost: 'High', desc: 'The Big Apple, Broadway, and Central Park.' },
-            { name: 'Los Angeles', country: 'USA', continent: 'Americas', visa: 'Visa Required', transport: 'Flight 13h', cost: 'High', desc: 'Hollywood, beaches, and Santa Monica Pier.' },
-            { name: 'Vancouver', country: 'Canada', continent: 'Americas', visa: 'eTA Required', transport: 'Flight 12h', cost: 'Mid', desc: 'Scenic mountain views and mild climate.' },
-            { name: 'Toronto', country: 'Canada', continent: 'Americas', visa: 'eTA Required', transport: 'Flight 15h', cost: 'High', desc: 'Canada\'s financial hub and CN Tower.' },
-            { name: 'San Francisco', country: 'USA', continent: 'Americas', visa: 'Visa Required', transport: 'Flight 12.5h', cost: 'High', desc: 'Golden Gate Bridge and tech culture.' }
+            { name: 'Vancouver', country: 'Canada', continent: 'Americas', visa: 'eTA Required', transport: 'Flight 12h', cost: 'Mid', desc: 'Scenic mountain views and mild climate.' }
         ];
 
         let currentFilter = 'All';
 
-        function initApp() {
-            const list = document.getElementById('all-locations');
-            list.innerHTML = '';
+        function showSuggestions(inputId) {
+            const container = document.getElementById(inputId + '-suggestions');
+            renderSuggestions(container, inputId);
+            container.style.display = 'block';
+            
+            const otherId = inputId === 'start-node' ? 'end-node-suggestions' : 'start-node-suggestions';
+            document.getElementById(otherId).style.display = 'none';
+        }
+
+        function filterSuggestions(inputId) {
+            const val = document.getElementById(inputId).value.toLowerCase();
+            const container = document.getElementById(inputId + '-suggestions');
+            renderSuggestions(container, inputId, val);
+        }
+
+        function renderSuggestions(container, inputId, filter = '') {
+            container.innerHTML = '';
+            
             const regions = [
-                { id: 'HK', label: '--- HONG KONG ISLAND ---' },
-                { id: 'Kln', label: '--- KOWLOON ---' },
-                { id: 'NT', label: '--- NEW TERRITORIES ---' }
+                { id: 'HK', label: '--- Hong Kong Island ---' },
+                { id: 'Kln', label: '--- Kowloon ---' },
+                { id: 'NT', label: '--- New Territories ---' }
             ];
+
             regions.forEach(reg => {
-                const header = document.createElement('option');
-                header.value = reg.label;
-                list.appendChild(header);
-                Object.keys(districts).filter(name => districts[name].region === reg.id).forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    list.appendChild(option);
-                });
+                const filteredDistricts = Object.keys(districts).filter(name => 
+                    districts[name].region === reg.id && name.toLowerCase().includes(filter)
+                );
+
+                if (filteredDistricts.length > 0) {
+                    const header = document.createElement('div');
+                    header.className = 'suggestion-header';
+                    header.innerText = reg.label;
+                    container.appendChild(header);
+
+                    filteredDistricts.forEach(name => {
+                        const item = document.createElement('div');
+                        item.className = 'suggestion-item';
+                        item.innerText = name;
+                        item.onmousedown = (e) => {
+                            e.preventDefault();
+                            selectSuggestion(inputId, name);
+                        };
+                        container.appendChild(item);
+                    });
+                }
             });
         }
+
+        function selectSuggestion(inputId, value) {
+            document.getElementById(inputId).value = value;
+            document.getElementById(inputId + '-suggestions').style.display = 'none';
+            checkDynamicRoute();
+        }
+
+        document.addEventListener('mousedown', (e) => {
+            if (!e.target.closest('.relative')) {
+                document.getElementById('start-node-suggestions').style.display = 'none';
+                document.getElementById('end-node-suggestions').style.display = 'none';
+            }
+        });
 
         function switchMode(mode) {
             const isLocal = mode === 'local';
@@ -212,19 +292,19 @@
             const dist = Math.sqrt(Math.pow(start.lat - end.lat, 2) + Math.pow(start.lon - end.lon, 2)) * 111;
             const isCrossHarbor = (start.region === 'HK' && end.region !== 'HK') || (start.region !== 'HK' && end.region === 'HK');
             
-            const mtr = isCrossHarbor ? 12.5 + dist * 0.45 : 4.8 + dist * 0.55;
-            let bus = isCrossHarbor ? ( (start.region === 'NT' || end.region === 'NT') ? 22.7 + (dist * 0.2) : 11.6 + (dist * 0.3) ) : 5.4 + (dist * 0.5);
-            const taxi = 27 + (dist * 9.8) + (isCrossHarbor ? 25 : 0);
+            const mtr = isCrossHarbor ? 12.5 + dist * 0.4 : 4.8 + dist * 0.5;
+            let bus = isCrossHarbor ? 10.5 : 5.8;
+            const taxi = 27 + (dist * 9.5) + (isCrossHarbor ? 25 : 0);
 
             const modes = [
-                { type: 'MTR Octopus', cost: mtr, time: Math.round(dist * 2.2 + 6), icon: 'fa-train', color: 'red' },
-                { type: 'Bus Fare', cost: bus, time: Math.round(dist * 4.5 + 10), icon: 'fa-bus', color: 'blue' },
-                { type: 'Taxi Estimate', cost: taxi, time: Math.round(dist * 3 + 4), icon: 'fa-taxi', color: 'yellow' }
+                { type: 'MTR Octopus', cost: mtr, time: Math.round(dist * 2.5 + 5), icon: 'fa-train', color: 'red' },
+                { type: 'Bus Fare', cost: bus, time: Math.round(dist * 4.2 + 8), icon: 'fa-bus', color: 'blue' },
+                { type: 'Taxi Estimate', cost: taxi, time: Math.round(dist * 3 + 2), icon: 'fa-taxi', color: 'yellow' }
             ];
 
             modes.forEach(mode => {
                 const div = document.createElement('div');
-                div.className = `bg-white p-8 rounded-[2.5rem] card-shadow border-l-8 border-${mode.color === 'red' ? 'red' : (mode.color === 'blue' ? 'blue' : 'yellow')}-500 slide-up flex items-center justify-between group hover:translate-x-1 transition-all`;
+                div.className = `bg-white p-8 rounded-[2.5rem] card-shadow border-l-8 border-${mode.color === 'red' ? 'red-500' : (mode.color === 'blue' ? 'blue-500' : 'yellow-500')} slide-up flex items-center justify-between group hover:translate-x-1 transition-all`;
                 div.innerHTML = `
                     <div class="flex items-center gap-6">
                         <div class="w-16 h-16 rounded-3xl bg-slate-100 flex items-center justify-center">
@@ -257,8 +337,7 @@
         function filterIntl(continent) {
             currentFilter = continent;
             ['All', 'Asia', 'Europe', 'Americas'].forEach(c => {
-                const btn = document.getElementById(`intl-btn-${c}`);
-                if (btn) btn.className = c === continent ? 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-900 text-white transition-all' : 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500 transition-all';
+                document.getElementById(`intl-btn-${c}`).className = c === continent ? 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-900 text-white transition-all' : 'px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500 transition-all';
             });
             searchIntl();
         }
@@ -318,8 +397,6 @@
             document.getElementById('end-node').value = '';
             checkDynamicRoute();
         }
-
-        window.onload = initApp;
     </script>
 </body>
 </html>
