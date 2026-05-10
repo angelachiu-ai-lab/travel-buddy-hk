@@ -3,264 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travel Buddy HK - Final MVP</title>
+    <title>Travel Buddy HK - Intelligent Routing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #0f172a; }
-        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
-        .gradient-bg { background: linear-gradient(135deg, #004e92 0%, #000428 100%); }
-        .tab-active { background: white; color: #004e92; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #0f172a; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
         
-        .region-hk { background-color: #ef4444; }
-        .region-kowloon { background-color: #3b82f6; }
-        .region-nt { background-color: #22c55e; }
+        .btn-region { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; cursor: pointer; }
+        .active-HK { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15); }
+        .active-Kowloon { background-color: #dbeafe !important; border-color: #3b82f6 !important; color: #1d4ed8 !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); }
+        .active-NT { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15); }
 
-        .slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .input-glow-HK:focus { border-color: #ef4444 !important; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1); }
+        .input-glow-Kowloon:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        .input-glow-NT:focus { border-color: #22c55e !important; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1); }
+        
+        .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .ping-green { animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="gradient-bg text-white py-8 px-6 shadow-2xl relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full blur-[100px] opacity-20 -mr-20 -mt-20"></div>
+    <header class="gradient-bg text-white py-6 px-6 shadow-2xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-80 h-80 bg-blue-600 rounded-full blur-[120px] opacity-20 -mr-32 -mt-32"></div>
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10">
             <div>
-                <h1 class="text-4xl font-black tracking-tight">TravelBuddy<span class="text-blue-400">HK</span></h1>
-                <p class="text-blue-200 text-xs font-bold uppercase tracking-[0.3em] mt-1">Intelligent Regional Mobility</p>
+                <h1 class="text-3xl font-black tracking-tight">TravelBuddy<span class="text-blue-400">HK</span></h1>
+                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] mt-1 text-center md:text-left">Intelligent Regional Mobility</p>
             </div>
-            <div class="mt-4 md:mt-0 flex gap-4">
-                <div class="flex items-center gap-3 bg-white/10 px-5 py-2.5 rounded-full border border-white/20 backdrop-blur-sm">
-                    <div class="h-2.5 w-2.5 bg-green-400 rounded-full animate-pulse"></div>
-                    <span class="text-xs font-bold">2024/25 Fare Sync Active</span>
+            <div class="mt-4 md:mt-0 flex items-center gap-4">
+                <div class="flex items-center gap-3 bg-white/5 px-5 py-2.5 rounded-full border border-white/10">
+                    <div class="relative h-2 w-2">
+                        <div class="absolute inset-0 bg-green-400 rounded-full ping-green"></div>
+                        <div class="relative h-2 w-2 bg-green-400 rounded-full"></div>
+                    </div>
+                    <span class="text-[9px] font-bold uppercase tracking-widest text-slate-300">2024/25 Fare Sync Active</span>
                 </div>
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto w-full p-4 md:p-8 flex-grow">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full items-start">
             
-            <!-- Left Column: Navigation & Controls -->
-            <div class="lg:col-span-4 space-y-6">
-                <nav class="flex bg-slate-200 p-1.5 rounded-3xl shadow-inner">
-                    <button id="btn-local" onclick="switchMode('local')" class="flex-1 py-4 rounded-2xl font-bold transition-all duration-300 tab-active">Local</button>
-                    <button id="btn-intl" onclick="switchMode('international')" class="flex-1 py-4 rounded-2xl font-bold text-slate-500 hover:text-slate-700 transition-all duration-300">International</button>
+            <!-- LEFT PANEL: PERSISTENT CONTROLS -->
+            <div class="lg:col-span-4 space-y-6 sticky top-8">
+                <nav class="flex bg-slate-200/50 p-1 rounded-2xl shadow-inner backdrop-blur-md">
+                    <button id="btn-local" onclick="switchMode('local')" class="flex-1 py-3 rounded-xl font-bold transition-all duration-300 bg-white shadow-md text-slate-900">Local</button>
+                    <button id="btn-intl" onclick="switchMode('intl')" class="flex-1 py-3 rounded-xl font-bold text-slate-500 hover:text-slate-700 transition-all duration-300">International</button>
                 </nav>
 
-                <!-- Local Controls -->
-                <div id="local-ui" class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 space-y-6 slide-up">
-                    <!-- Regional Labels -->
-                    <div class="flex justify-between items-center gap-2 pb-4">
-                        <div class="flex-1 text-center py-2 rounded-xl region-hk text-white text-[10px] font-black uppercase shadow-sm">HK Island</div>
-                        <div class="flex-1 text-center py-2 rounded-xl region-kowloon text-white text-[10px] font-black uppercase shadow-sm">Kowloon</div>
-                        <div class="flex-1 text-center py-2 rounded-xl region-nt text-white text-[10px] font-black uppercase shadow-sm">N.T.</div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-black text-slate-800">Route Planner</h2>
-                        <button onclick="detectLocation()" class="text-xs bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-bold hover:bg-blue-100 transition-colors">📍 Detect Me</button>
-                    </div>
-
+                <!-- Local Input Panel -->
+                <div id="local-input-panel" class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 space-y-8 slide-up">
                     <div class="space-y-4">
-                        <div class="relative">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-1 block">Start Point</label>
-                            <input list="hk-districts" id="start-node" placeholder="Type district name..." class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 outline-none transition-all">
-                            <span class="absolute left-4 top-10 text-xl">🏠</span>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Region Filters</label>
+                        <div class="flex justify-between items-center gap-2">
+                            <button id="filter-HK" onclick="filterByRegion('HK')" class="btn-region flex-1 py-3 rounded-xl bg-slate-50 text-slate-600 text-[10px] font-black uppercase border-slate-100">HK Island</button>
+                            <button id="filter-Kowloon" onclick="filterByRegion('Kowloon')" class="btn-region flex-1 py-3 rounded-xl bg-slate-50 text-slate-600 text-[10px] font-black uppercase border-slate-100">Kowloon</button>
+                            <button id="filter-NT" onclick="filterByRegion('NT')" class="btn-region flex-1 py-3 rounded-xl bg-slate-50 text-slate-600 text-[10px] font-black uppercase border-slate-100">N.T.</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="relative group">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-2 block">Departure</label>
+                            <div class="relative">
+                                <input list="hk-districts" id="start-node" oninput="checkDynamicRoute()" placeholder="Enter location..." class="w-full pl-10 pr-12 py-4 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none transition-all focus:bg-white">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 opacity-60">🏠</span>
+                                <button onclick="detectLocation()" title="Detect Current Location" class="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-blue-50 text-blue-500 rounded-lg transition-colors group-hover:scale-110 active:scale-95">
+                                    <span class="text-sm">📍</span>
+                                </button>
+                            </div>
                         </div>
                         <div class="relative">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-1 block">Destination</label>
-                            <input list="hk-districts" id="end-node" placeholder="Where to?" class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 outline-none transition-all">
-                            <span class="absolute left-4 top-10 text-xl">🎯</span>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-2 block">Destination</label>
+                            <input list="hk-districts" id="end-node" oninput="checkDynamicRoute()" placeholder="Where to?" class="w-full pl-10 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none transition-all">
+                            <span class="absolute left-4 top-[42px] opacity-60">🎯</span>
                         </div>
                         <datalist id="hk-districts"></datalist>
                     </div>
 
-                    <button onclick="calculateRoute()" class="w-full py-5 gradient-bg text-white font-black text-lg rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all">ESTIMATE JOURNEY</button>
+                    <div class="pt-4 border-t border-slate-100 flex flex-col gap-3">
+                        <button onclick="clearInputs()" class="w-full text-[10px] font-black text-slate-300 hover:text-red-500 transition-colors uppercase tracking-widest text-center py-1">Clear Inputs</button>
+                    </div>
                 </div>
 
-                <!-- Intl Controls (Hidden by default) -->
-                <div id="intl-ui" class="hidden bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 space-y-6 slide-up">
-                    <h2 class="text-xl font-black text-slate-800">Global Search</h2>
+                <!-- International Panel (Hidden by default) -->
+                <div id="intl-input-panel" class="hidden bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 space-y-6 slide-up">
+                    <h2 class="text-lg font-black text-slate-800">Global Destinations</h2>
                     <div class="relative">
-                        <input type="text" id="intl-search" onkeyup="searchIntl()" placeholder="Search city or country..." class="w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-200 rounded-2xl outline-none">
-                        <span class="absolute left-4 top-5 text-xl">✈️</span>
+                        <input type="text" id="intl-search" oninput="searchIntl()" placeholder="Search city or country..." class="w-full pl-10 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-100 transition-all">
+                        <span class="absolute left-4 top-[18px] opacity-60">✈️</span>
                     </div>
+                    <p class="text-[10px] text-slate-400 font-medium">HKSAR Passport intelligence active.</p>
                 </div>
             </div>
 
-            <!-- Right Column: Results Area -->
-            <div class="lg:col-span-8">
-                <div id="placeholder-view" class="h-full min-h-[500px] glass rounded-[3rem] border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-12 text-center text-slate-400">
+            <!-- RIGHT PANEL: DYNAMIC RESULTS -->
+            <div class="lg:col-span-8 h-full">
+                <div id="placeholder-view" class="h-full min-h-[500px] glass rounded-[3rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-12 text-center">
                     <div class="text-7xl mb-6">🗺️</div>
-                    <h3 class="text-2xl font-black text-slate-500">Ready to Explore?</h3>
-                    <p class="max-w-md mt-2">Enter your departure and arrival points to see a detailed breakdown of costs and travel times in Hong Kong.</p>
+                    <h3 class="text-2xl font-black text-slate-400">Route Explorer</h3>
+                    <p class="max-w-md mt-2 text-slate-400 font-medium">Select regions and locations on the left. Cost and time estimates will update automatically.</p>
                 </div>
 
-                <div id="local-results" class="hidden space-y-6">
-                    <!-- Cards will be injected here -->
-                </div>
-
-                <div id="intl-results" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Intl Cards injected here -->
-                </div>
+                <div id="local-results" class="hidden space-y-6 slide-up"></div>
+                <div id="intl-results" class="hidden grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 slide-up"></div>
             </div>
         </div>
     </main>
 
     <script>
         const districts = {
-            // HK Island
-            'kennedy_town': { label: 'Kennedy Town', region: 'HK', lat: 22.28, lng: 114.12, emoji: '🚋' },
-            'sheung_wan': { label: 'Sheung Wan', region: 'HK', lat: 22.28, lng: 114.15, emoji: '☕' },
-            'central': { label: 'Central', region: 'HK', lat: 22.28, lng: 114.15, emoji: '🏙️' },
-            'wan_chai': { label: 'Wan Chai', region: 'HK', lat: 22.27, lng: 114.17, emoji: '🏮' },
-            'causeway_bay': { label: 'Causeway Bay', region: 'HK', lat: 22.28, lng: 114.18, emoji: '🛍️' },
-            'quarry_bay': { label: 'Quarry Bay', region: 'HK', lat: 22.28, lng: 114.21, emoji: '🏢' },
-            'chai_wan': { label: 'Chai Wan', region: 'HK', lat: 22.26, lng: 114.23, emoji: '🏭' },
-            'aberdeen': { label: 'Aberdeen', region: 'HK', lat: 22.24, lng: 114.15, emoji: '🛶' },
-            'stanley': { label: 'Stanley', region: 'HK', lat: 22.21, lng: 114.21, emoji: '🍦' },
-            'cyberport': { label: 'Cyberport', region: 'HK', lat: 22.26, lng: 114.13, emoji: '💻' },
-            'repulse_bay': { label: 'Repulse Bay', region: 'HK', lat: 22.23, lng: 114.19, emoji: '🏖️' },
-
-            // Kowloon
-            'tst': { label: 'Tsim Sha Tsui', region: 'Kowloon', lat: 22.29, lng: 114.17, emoji: '🎡' },
-            'mongkok': { label: 'Mong Kok', region: 'Kowloon', lat: 22.31, lng: 114.16, emoji: '🛍️' },
-            'jordan': { label: 'Jordan', region: 'Kowloon', lat: 22.30, lng: 114.17, emoji: '🍜' },
-            'sham_shui_po': { label: 'Sham Shui Po', region: 'Kowloon', lat: 22.33, lng: 114.16, emoji: '🔌' },
-            'kwun_tong': { label: 'Kwun Tong', region: 'Kowloon', lat: 22.31, lng: 114.22, emoji: '🏭' },
-            'choi_hung': { label: 'Choi Hung', region: 'Kowloon', lat: 22.33, lng: 114.20, emoji: '🌈' },
-            'mei_foo': { label: 'Mei Foo', region: 'Kowloon', lat: 22.33, lng: 114.13, emoji: '🌳' },
-            'hung_hom': { label: 'Hung Hom', region: 'Kowloon', lat: 22.30, lng: 114.18, emoji: '🎸' },
-
-            // New Territories
-            'shatin': { label: 'Sha Tin', region: 'NT', lat: 22.37, lng: 114.18, emoji: '🐎' },
-            'tseung_kwan_o': { label: 'Tseung Kwan O', region: 'NT', lat: 22.31, lng: 114.25, emoji: '🌊' },
-            'tsuen_wan': { label: 'Tsuen Wan', region: 'NT', lat: 22.36, lng: 114.11, emoji: '🧥' },
-            'tuen_mun': { label: 'Tuen Mun', region: 'NT', lat: 22.39, lng: 113.97, emoji: '⛴️' },
-            'yuen_long': { label: 'Yuen Long', region: 'NT', lat: 22.44, lng: 114.02, emoji: '🥧' },
-            'tin_shui_wai': { label: 'Tin Shui Wai', region: 'NT', lat: 22.45, lng: 114.00, emoji: '🌅' },
-            'sheung_shui': { label: 'Sheung Shui', region: 'NT', lat: 22.50, lng: 114.12, emoji: '📦' },
-            'tai_po': { label: 'Tai Po', region: 'NT', lat: 22.45, lng: 114.17, emoji: '🌳' },
-            'sai_kung': { label: 'Sai Kung', region: 'NT', lat: 22.38, lng: 114.27, emoji: '⛵' },
-            'tung_chung': { label: 'Tung Chung', region: 'NT', lat: 22.28, lng: 113.94, emoji: '✈️' }
+            'central': { label: 'Central', region: 'HK', lat: 22.2819, lon: 114.1581 },
+            'wanchai': { label: 'Wan Chai', region: 'HK', lat: 22.2760, lon: 114.1751 },
+            'causeway': { label: 'Causeway Bay', region: 'HK', lat: 22.2800, lon: 114.1850 },
+            'quarry': { label: 'Quarry Bay', region: 'HK', lat: 22.2825, lon: 114.2110 },
+            'chaiwan': { label: 'Chai Wan', region: 'HK', lat: 22.2639, lon: 114.2361 },
+            'kennedy': { label: 'Kennedy Town', region: 'HK', lat: 22.2830, lon: 114.1287 },
+            'stanley': { label: 'Stanley', region: 'HK', lat: 22.2188, lon: 114.2131 },
+            'tst': { label: 'Tsim Sha Tsui', region: 'Kowloon', lat: 22.2988, lon: 114.1722 },
+            'mongkok': { label: 'Mong Kok', region: 'Kowloon', lat: 22.3193, lon: 114.1694 },
+            'kwuntong': { label: 'Kwun Tong', region: 'Kowloon', lat: 22.3132, lon: 114.2258 },
+            'shamshuipo': { label: 'Sham Shui Po', region: 'Kowloon', lat: 22.3307, lon: 114.1622 },
+            'shatin': { label: 'Sha Tin', region: 'NT', lat: 22.3813, lon: 114.1878 },
+            'taipo': { label: 'Tai Po', region: 'NT', lat: 22.4508, lon: 114.1642 },
+            'tuenmun': { label: 'Tuen Mun', region: 'NT', lat: 22.3908, lon: 113.9725 },
+            'yuenlong': { label: 'Yuen Long', region: 'NT', lat: 22.4445, lon: 114.0222 },
+            'tseungkwano': { label: 'Tseung Kwan O', region: 'NT', lat: 22.3072, lon: 114.2600 },
+            'tungchung': { label: 'Tung Chung', region: 'NT', lat: 22.2891, lon: 113.9432 }
         };
 
         const intlCities = [
-            { city: 'Tokyo', country: 'Japan', visa: 'Visa Free', cost: 'High', emoji: '🗼' },
-            { city: 'Osaka', country: 'Japan', visa: 'Visa Free', cost: 'Mid', emoji: '🏯' },
-            { city: 'Sapporo', country: 'Japan', visa: 'Visa Free', cost: 'Mid', emoji: '❄️' },
-            { city: 'Fukuoka', country: 'Japan', visa: 'Visa Free', cost: 'Low-Mid', emoji: '🍜' },
-            { city: 'Seoul', country: 'South Korea', visa: 'K-ETA Required', cost: 'Mid', emoji: '🏰' },
-            { city: 'Taipei', country: 'Taiwan', visa: 'Permit Required', cost: 'Low', emoji: '🏮' },
-            { city: 'London', country: 'UK', visa: 'Visa Free', cost: 'Very High', emoji: '💂' },
-            { city: 'Paris', country: 'France', visa: 'Visa Free', cost: 'Very High', emoji: '🥐' },
-            { city: 'Bangkok', country: 'Thailand', visa: 'Visa Free', cost: 'Low', emoji: '🐘' },
-            { city: 'Singapore', country: 'Singapore', visa: 'Visa Free', cost: 'Mid-High', emoji: '🦁' },
-            { city: 'Barcelona', country: 'Spain', visa: 'Visa Free', cost: 'High', emoji: '⚽' },
-            { city: 'Da Nang', country: 'Vietnam', visa: 'E-Visa', cost: 'Very Low', emoji: '🏖️' }
+            { name: 'Tokyo', country: 'Japan', emoji: '🇯🇵', visa: 'Visa Free (90d)', flight: '4.5h', cost: 'High' },
+            { name: 'Osaka', country: 'Japan', emoji: '🇯🇵', visa: 'Visa Free (90d)', flight: '3.5h', cost: 'Mid' },
+            { name: 'Seoul', country: 'S. Korea', emoji: '🇰🇷', visa: 'K-ETA Required', flight: '3.5h', cost: 'Mid' },
+            { name: 'Taipei', country: 'Taiwan', emoji: '🇹🇼', visa: 'Permit Required', flight: '1.5h', cost: 'Low' },
+            { name: 'Bangkok', country: 'Thailand', emoji: '🇹🇭', visa: 'Visa Free (30d)', flight: '2.5h', flight: '2.5h', cost: 'Low' },
+            { name: 'Singapore', country: 'Singapore', emoji: '🇸🇬', visa: 'Visa Free (30d)', flight: '3.5h', cost: 'High' },
+            { name: 'London', country: 'UK', emoji: '🇬🇧', visa: 'Visa Free (180d)', flight: '13h', cost: 'Very High' },
+            { name: 'Paris', country: 'France', emoji: '🇫🇷', visa: 'Schengen Free', flight: '13h', cost: 'Very High' }
         ];
 
-        window.onload = () => {
-            const list = document.getElementById('hk-districts');
-            Object.keys(districts).forEach(key => {
-                const d = districts[key];
-                list.innerHTML += `<option value="${d.label} (${d.region})">`;
-            });
-            searchIntl(); // Load defaults
-        };
+        let activeRegion = null;
 
         function switchMode(mode) {
-            document.getElementById('local-ui').classList.toggle('hidden', mode !== 'local');
-            document.getElementById('intl-ui').classList.toggle('hidden', mode !== 'international');
-            document.getElementById('local-results').classList.toggle('hidden', true);
-            document.getElementById('intl-results').classList.toggle('hidden', mode !== 'international');
-            document.getElementById('placeholder-view').classList.toggle('hidden', true);
+            const isLocal = mode === 'local';
+            document.getElementById('local-input-panel').classList.toggle('hidden', !isLocal);
+            document.getElementById('intl-input-panel').classList.toggle('hidden', isLocal);
+            document.getElementById('local-results').classList.toggle('hidden', !isLocal);
+            document.getElementById('intl-results').classList.toggle('hidden', isLocal);
             
-            if (mode === 'local') document.getElementById('placeholder-view').classList.remove('hidden');
+            document.getElementById('btn-local').className = isLocal ? 'flex-1 py-3 rounded-xl font-bold bg-white shadow-md text-slate-900' : 'flex-1 py-3 rounded-xl font-bold text-slate-500';
+            document.getElementById('btn-intl').className = !isLocal ? 'flex-1 py-3 rounded-xl font-bold bg-white shadow-md text-slate-900' : 'flex-1 py-3 rounded-xl font-bold text-slate-500';
 
-            document.getElementById('btn-local').className = mode === 'local' ? 'flex-1 py-4 rounded-2xl font-bold transition-all duration-300 tab-active' : 'flex-1 py-4 rounded-2xl font-bold text-slate-500 hover:text-slate-700 transition-all duration-300';
-            document.getElementById('btn-intl').className = mode === 'international' ? 'flex-1 py-4 rounded-2xl font-bold transition-all duration-300 tab-active' : 'flex-1 py-4 rounded-2xl font-bold text-slate-500 hover:text-slate-700 transition-all duration-300';
-        }
-
-        function findKey(input) {
-            const norm = input.toLowerCase();
-            for (let k in districts) {
-                if (norm.includes(districts[k].label.toLowerCase())) return k;
+            if (!isLocal) {
+                document.getElementById('placeholder-view').classList.add('hidden');
+                searchIntl();
+            } else {
+                checkDynamicRoute();
             }
-            return null;
         }
 
-        function calculateRoute() {
-            const startKey = findKey(document.getElementById('start-node').value);
-            const endKey = findKey(document.getElementById('end-node').value);
+        function filterByRegion(region) {
+            const btns = {
+                'HK': document.getElementById('filter-HK'),
+                'Kowloon': document.getElementById('filter-Kowloon'),
+                'NT': document.getElementById('filter-NT')
+            };
+            const inputs = [document.getElementById('start-node'), document.getElementById('end-node')];
+
+            Object.values(btns).forEach(b => b.className = 'btn-region flex-1 py-3 rounded-xl bg-slate-50 text-slate-600 text-[10px] font-black uppercase border-slate-100');
+            inputs.forEach(input => input.classList.remove('input-glow-HK', 'input-glow-Kowloon', 'input-glow-NT'));
+
+            if (activeRegion === region) {
+                activeRegion = null;
+            } else {
+                activeRegion = region;
+                btns[region].classList.add(`active-${region}`);
+                inputs.forEach(input => input.classList.add(`input-glow-${region}`));
+            }
+            updateDistrictDropdown();
+        }
+
+        function updateDistrictDropdown() {
+            const list = document.getElementById('hk-districts');
+            list.innerHTML = '';
+            Object.values(districts).forEach(d => {
+                if (!activeRegion || d.region === activeRegion) {
+                    const opt = document.createElement('option');
+                    opt.value = d.label;
+                    list.appendChild(opt);
+                }
+            });
+        }
+
+        function checkDynamicRoute() {
+            const startVal = document.getElementById('start-node').value;
+            const endVal = document.getElementById('end-node').value;
             
-            if (!startKey || !endKey) {
-                showToast("Please select valid districts.");
-                return;
+            const start = Object.values(districts).find(d => d.label.toLowerCase() === startVal.toLowerCase());
+            const end = Object.values(districts).find(d => d.label.toLowerCase() === endVal.toLowerCase());
+
+            if (start && end && start !== end) {
+                calculateResults(start, end);
+            } else {
+                document.getElementById('placeholder-view').classList.remove('hidden');
+                document.getElementById('local-results').classList.add('hidden');
             }
-
-            const s = districts[startKey];
-            const e = districts[endKey];
-            const dist = Math.sqrt(Math.pow(s.lat - e.lat, 2) + Math.pow(s.lng - e.lng, 2)) * 111; // KM
-            const isCrossHarbor = (s.region === 'HK' && e.region !== 'HK') || (s.region !== 'HK' && e.region === 'HK');
-
-            // MTR Logic (Octopus Rates)
-            let mtr = isCrossHarbor ? 10.5 + (dist * 0.7) : 4.8 + (dist * 0.6);
-            if (s.region === 'NT' && e.region === 'HK') mtr += 5; // Long haul jump
-            mtr = Math.min(Math.max(mtr, 4.8), 28.5);
-
-            // Bus Logic (Standard Fares)
-            let bus = 6.5;
-            if (isCrossHarbor) bus = 11.2;
-            if (dist > 15 && (s.region === 'NT' || e.region === 'NT')) bus = 22.4;
-
-            // Taxi Logic (2024 Flagfall)
-            let taxi = 27 + (dist * 9.5) + (isCrossHarbor ? 25 : 0);
-
-            renderResults(mtr, bus, taxi, dist, s, e);
         }
 
-        function renderResults(mtr, bus, taxi, dist, s, e) {
+        function calculateResults(start, end) {
             document.getElementById('placeholder-view').classList.add('hidden');
-            const res = document.getElementById('local-results');
-            res.classList.remove('hidden');
-            
-            res.innerHTML = `
-                <div class="bg-white p-8 rounded-[3rem] shadow-xl slide-up border border-slate-50">
-                    <div class="flex justify-between items-center mb-8">
-                        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Route Strategy: ${s.label} → ${e.label}</h3>
-                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold">~${dist.toFixed(1)} km</span>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- MTR Card -->
-                        <div class="p-6 rounded-3xl bg-red-50 border-l-8 border-red-500 transition-all hover:scale-[1.02] shadow-sm">
-                            <p class="text-[10px] font-black text-red-400 uppercase">MTR Octopus</p>
-                            <p class="text-4xl font-black text-red-600 mt-2">$${mtr.toFixed(1)}</p>
-                            <div class="flex items-center gap-2 mt-4">
-                                <span class="text-xs text-red-500 font-bold">⏱️ ${Math.round(dist * 2.8)} mins</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Bus Card -->
-                        <div class="p-6 rounded-3xl bg-green-50 border-l-8 border-green-500 transition-all hover:scale-[1.02] shadow-sm">
-                            <p class="text-[10px] font-black text-green-400 uppercase">Bus (Est.)</p>
-                            <p class="text-4xl font-black text-green-600 mt-2">$${bus.toFixed(1)}</p>
-                            <p class="text-xs text-green-500 font-bold mt-4">🚌 Fixed Route</p>
-                        </div>
+            const container = document.getElementById('local-results');
+            container.classList.remove('hidden');
 
-                        <!-- Taxi Card -->
-                        <div class="p-6 rounded-3xl bg-blue-50 border-l-8 border-blue-500 transition-all hover:scale-[1.02] shadow-sm">
-                            <p class="text-[10px] font-black text-blue-400 uppercase">Urban Taxi</p>
-                            <p class="text-4xl font-black text-blue-600 mt-2">$${Math.round(taxi)}</p>
-                            <p class="text-xs text-blue-500 font-bold mt-4">🚕 ${isCrossHarbor ? 'Inc. Tunnel Fee' : 'Direct'}</p>
-                        </div>
+            // Haversine
+            const R = 6371; 
+            const dLat = (end.lat - start.lat) * Math.PI / 180;
+            const dLon = (end.lon - start.lon) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(start.lat * Math.PI / 180) * Math.cos(end.lat * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            const dist = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * R;
+
+            const isCrossHarbor = (start.region === 'HK' && end.region !== 'HK') || (start.region !== 'HK' && end.region === 'HK');
+
+            // Fare Logic 2024/25
+            let mtrCost = isCrossHarbor ? (10.5 + dist * 0.4) : (4.8 + dist * 0.5);
+            let busCost = isCrossHarbor ? 11.5 : 6.5;
+            let taxiCost = 27 + Math.max(0, (dist - 2) * 9.5) + (isCrossHarbor ? 25 : 0);
+
+            container.innerHTML = `
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-600 uppercase tracking-widest">${start.label} → ${end.label}</span>
+                    <span class="text-xs text-slate-400 font-bold">${dist.toFixed(1)} km</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-[2rem] shadow-lg border-l-4 border-red-500 slide-up">
+                        <p class="text-[10px] font-black text-red-500 uppercase tracking-widest">MTR Octopus</p>
+                        <h3 class="text-4xl font-black mt-2 text-slate-800">$${mtrCost.toFixed(1)}</h3>
+                        <p class="text-xs text-slate-400 font-bold mt-4">${Math.round(dist * 2.5 + 5)} mins est.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-[2rem] shadow-lg border-l-4 border-blue-500 slide-up" style="animation-delay:0.1s">
+                        <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Bus Fare</p>
+                        <h3 class="text-4xl font-black mt-2 text-slate-800">$${busCost.toFixed(1)}</h3>
+                        <p class="text-xs text-slate-400 font-bold mt-4">${Math.round(dist * 4 + 10)} mins est.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-[2rem] shadow-lg border-l-4 border-yellow-500 slide-up" style="animation-delay:0.2s">
+                        <p class="text-[10px] font-black text-yellow-600 uppercase tracking-widest">Taxi Estimate</p>
+                        <h3 class="text-4xl font-black mt-2 text-slate-800">$${Math.round(taxiCost)}</h3>
+                        <p class="text-xs text-slate-400 font-bold mt-4">Traffic variable</p>
                     </div>
                 </div>
             `;
@@ -269,66 +269,39 @@
         function searchIntl() {
             const query = document.getElementById('intl-search').value.toLowerCase();
             const container = document.getElementById('intl-results');
-            container.innerHTML = '';
+            container.classList.remove('hidden');
             
-            const filtered = intlCities.filter(c => c.city.toLowerCase().includes(query) || c.country.toLowerCase().includes(query));
-            
-            filtered.forEach(c => {
-                container.innerHTML += `
-                    <div class="bg-white p-6 rounded-3xl shadow-lg slide-up hover:shadow-2xl transition-all border border-slate-50">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-3xl">${c.emoji}</span>
-                                <h4 class="text-xl font-black mt-2">${c.city}</h4>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase">${c.country}</p>
-                            </div>
-                            <span class="bg-blue-50 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full uppercase">HKSAR Passport</span>
-                        </div>
-                        <div class="mt-6 pt-6 border-t border-slate-100 flex justify-between items-center">
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-300 uppercase">Visa Status</p>
-                                <p class="text-sm font-bold text-slate-700">${c.visa}</p>
-                            </div>
+            container.innerHTML = intlCities
+                .filter(c => c.name.toLowerCase().includes(query) || c.country.toLowerCase().includes(query))
+                .map(c => `
+                    <div class="bg-white p-6 rounded-[2rem] shadow-md border border-slate-100 slide-up group hover:scale-[1.02] transition-transform">
+                        <span class="text-5xl">${c.emoji}</span>
+                        <h4 class="text-xl font-black mt-4 text-slate-800">${c.name}</h4>
+                        <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">${c.country}</p>
+                        <div class="mt-6 pt-6 border-t border-slate-50 flex justify-between items-center">
+                            <span class="text-[8px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded uppercase">${c.visa}</span>
                             <div class="text-right">
-                                <p class="text-[10px] font-bold text-slate-300 uppercase">Cost Level</p>
-                                <p class="text-sm font-bold text-blue-600">${c.cost}</p>
+                                <p class="text-[8px] font-bold text-slate-300 uppercase">Flight</p>
+                                <p class="text-xs font-black text-slate-600">${c.flight}</p>
                             </div>
                         </div>
                     </div>
-                `;
-            });
+                `).join('');
         }
 
         function detectLocation() {
-            if (!navigator.geolocation) {
-                showToast("Geolocation not supported.");
-                return;
-            }
-            showToast("📍 Finding your district...");
-            navigator.geolocation.getCurrentPosition(pos => {
-                let min = Infinity;
-                let closest = null;
-                Object.keys(districts).forEach(k => {
-                    const d = Math.sqrt(Math.pow(pos.coords.latitude - districts[k].lat, 2) + Math.pow(pos.coords.longitude - districts[k].lng, 2));
-                    if (d < min) { min = d; closest = k; }
-                });
-                if (closest) {
-                    document.getElementById('start-node').value = districts[closest].label + " (" + districts[closest].region + ")";
-                    showToast("Located in " + districts[closest].label);
-                }
-            }, () => showToast("Location access denied."));
+            // Mocking geolocation for MVP demo
+            document.getElementById('start-node').value = "Central";
+            checkDynamicRoute();
         }
 
-        function showToast(msg) {
-            const t = document.createElement('div');
-            t.className = 'fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl z-50 font-bold text-sm slide-up';
-            t.innerText = msg;
-            document.body.appendChild(t);
-            setTimeout(() => {
-                t.style.opacity = '0';
-                setTimeout(() => t.remove(), 500);
-            }, 2500);
+        function clearInputs() {
+            document.getElementById('start-node').value = "";
+            document.getElementById('end-node').value = "";
+            checkDynamicRoute();
         }
+
+        window.onload = updateDistrictDropdown;
     </script>
 </body>
 </html>
